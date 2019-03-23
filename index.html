@@ -37,11 +37,9 @@
                     <ul class="pagination">
                         <li><a href="#">&laquo;</a></li>
                         <li><a href="#">&lt;</a></li>
-                        <li :class="[{'active':currentActive == 1}]"><a href="#">{{firstBtn}}</a></li>
-                        <li :class="[{'active':currentActive == 2}]"><a href="#">{{secondBtn}}</a></li>
-                        <li :class="[{'active':currentActive == 3}]"><a href="#">{{thirdBtn}}</a></li>
-                        <li :class="[{'active':4 == currentActive}]"><a href="#">{{fourthBtn}}</a></li>
-                        <li :class="[{'active':5 == currentActive}]"><a href="#">{{fifthBtn}}</a></li>
+                        <li v-for="(pageNum,index) in pageList" :class="[{'active':currentActive == index+1}]">
+                           <a href="#"> {{ pageNum }}</a>
+                        </li>
                         <li><a v-on:click="nextPage" href="#">&gt;</a></li>
                         <li><a href="#">&raquo;</a></li>
                     </ul>
@@ -66,15 +64,22 @@
             template: template,
             data: function () {
                 return {
-                    page: 2,
+                    page: 1,
                     total: 2,
                     totalPage: 10,
                     limit: 10,
                     currentActive: 1,
+                    // pageList:[
+                    //     1,
+                    //     2,
+                    //     3,
+                    //     4,
+                    //     5
+                    // ],
                 }
             },
             created: function () {
-                this.page = 2;
+                
             },
             methods: {
                 nextPage: function () {
@@ -84,84 +89,39 @@
             watch: {
                 page(newPage, oldPage) {
                     switch (newPage) {
-                        case this.firstBtn:
+                        case this.pageList[0]:
                             this.currentActive = 1;
                             break;
-                        case this.secondBtn:
+                        case this.pageList[1]:
                             this.currentActive = 2;
                             break;
-                        case this.thirdBtn:
+                        case this.pageList[2]:
                             this.currentActive = 3;
                             break;
-                        case this.fourthBtn:
+                        case this.pageList[3]:
                             this.currentActive = 4;
                             break;
-                        case this.fifthBtn:
+                        case this.pageList[4]:
                             this.currentActive = 5;
                             break;
                     }
                 }
             },
             computed: {
-                firstBtn: function () {
+                pageList:function(){
+                    var list = [];
                     if (this.page >= 3) {
                         if (this.totalPage - this.page >= 3) {
-                            return this.page - 2;
+                            list = [this.page - 2,this.page - 1,this.page,this.page + 1, this.page + 2];
                         }
                         else {
-                            return this.totalPage - 4;
+                            list = [this.totalPage - 4,this.totalPage - 3,this.totalPage - 2,this.totalPage - 1, this.totalPage];
+
                         }
                     } else {
-                        return 1;
+                        list = [ 1, 2,3, 4, 5];
                     }
-                },
-                secondBtn: function () {
-                    if (this.page >= 3) {
-                        if (this.totalPage - this.page >= 3) {
-                            return this.page - 1;
-                        }
-                        else {
-                            return this.totalPage - 3;
-                        }
-                    } else {
-                        return 2;
-                    }
-                },
-                thirdBtn: function () {
-                    if (this.page >= 3) {
-                        if (this.totalPage - this.page >= 3) {
-                            return this.page;
-                        }
-                        else {
-                            return this.totalPage - 2;
-                        }
-                    } else {
-                        return 3;
-                    }
-                },
-                fourthBtn: function () {
-                    if (this.page >= 3) {
-                        if (this.totalPage - this.page >= 3) {
-                            return this.page + 1;
-                        }
-                        else {
-                            return this.totalPage - 1;
-                        }
-                    } else {
-                        return 4;
-                    }
-                },
-                fifthBtn: function () {
-                    if (this.page >= 3) {
-                        if (this.totalPage - this.page >= 3) {
-                            return this.page + 2;
-                        }
-                        else {
-                            return this.totalPage;
-                        }
-                    } else {
-                        return 5;
-                    }
+                    return list;
                 },
             }
         });
