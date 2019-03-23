@@ -1,12 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/vue.min.js"></script>
 </head>
+
 <body>
-    
+    <div id="example">
+        <m-page></m-page>
+    </div>
+    <template id="app">
+        <div class="form-group">
+            <div style="width:800px;">
+
+                <label class="control-label col-lg-4">当前第<span id="page">{{page}}</span>页共<span
+                        id="totalPage">{{totalPage}}</span>页
+                    总共<b> {{total}} </b>条
+                    <select v-model="limit">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                        <option>40</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>条/页</label>
+                <!-- <label class="control-label col-lg-2">
+                </label> -->
+                <div>
+                    <ul class="pagination">
+                        <li><a href="#">&laquo;</a></li>
+                        <li><a href="#">&lt;</a></li>
+                        <li :class="[{'active':currentActive == 1}]"><a href="#">{{firstBtn}}</a></li>
+                        <li :class="[{'active':currentActive == 2}]"><a href="#">{{secondBtn}}</a></li>
+                        <li :class="[{'active':currentActive == 3}]"><a href="#">{{thirdBtn}}</a></li>
+                        <li :class="[{'active':4 == currentActive}]"><a href="#">{{fourthBtn}}</a></li>
+                        <li :class="[{'active':5 == currentActive}]"><a href="#">{{fifthBtn}}</a></li>
+                        <li><a v-on:click="nextPage" href="#">&gt;</a></li>
+                        <li><a href="#">&raquo;</a></li>
+                    </ul>
+                </div>
+                <ul class="pager col-lg-4" style="display:inline-block;margin:0;">
+                    <li id="lip"><a href="Javascript:void(0)" id="previous">上一页</a></li>
+                    <li id="lin"><a href="Javascript:void(0)" id="next">下一页</a></li>
+                </ul>
+                <div class="col-lg-2">
+                    <input type="text" class="form-control" id="pageIndex" placeholder="1">
+                </div>
+                <button class="btn btn-default col-md-1" id="jump">转到</button>
+
+
+            </div>
+
+        </div>
+    </template>
+    <script>
+        var template = document.querySelector("#app").innerHTML;
+        var data = Vue.component("m-page", {
+            template: template,
+            data: function () {
+                return {
+                    page: 2,
+                    total: 2,
+                    totalPage: 10,
+                    limit: 10,
+                    currentActive: 1,
+                }
+            },
+            created: function () {
+                this.page = 2;
+            },
+            methods: {
+                nextPage: function () {
+                    this.page++;
+                }
+            },
+            watch: {
+                page(newPage, oldPage) {
+                    switch (newPage) {
+                        case this.firstBtn:
+                            this.currentActive = 1;
+                            break;
+                        case this.secondBtn:
+                            this.currentActive = 2;
+                            break;
+                        case this.thirdBtn:
+                            this.currentActive = 3;
+                            break;
+                        case this.fourthBtn:
+                            this.currentActive = 4;
+                            break;
+                        case this.fifthBtn:
+                            this.currentActive = 5;
+                            break;
+                    }
+                }
+            },
+            computed: {
+                firstBtn: function () {
+                    if (this.page >= 3) {
+                        if (this.totalPage - this.page >= 3) {
+                            return this.page - 2;
+                        }
+                        else {
+                            return this.totalPage - 4;
+                        }
+                    } else {
+                        return 1;
+                    }
+                },
+                secondBtn: function () {
+                    if (this.page >= 3) {
+                        if (this.totalPage - this.page >= 3) {
+                            return this.page - 1;
+                        }
+                        else {
+                            return this.totalPage - 3;
+                        }
+                    } else {
+                        return 2;
+                    }
+                },
+                thirdBtn: function () {
+                    if (this.page >= 3) {
+                        if (this.totalPage - this.page >= 3) {
+                            return this.page;
+                        }
+                        else {
+                            return this.totalPage - 2;
+                        }
+                    } else {
+                        return 3;
+                    }
+                },
+                fourthBtn: function () {
+                    if (this.page >= 3) {
+                        if (this.totalPage - this.page >= 3) {
+                            return this.page + 1;
+                        }
+                        else {
+                            return this.totalPage - 1;
+                        }
+                    } else {
+                        return 4;
+                    }
+                },
+                fifthBtn: function () {
+                    if (this.page >= 3) {
+                        if (this.totalPage - this.page >= 3) {
+                            return this.page + 2;
+                        }
+                        else {
+                            return this.totalPage;
+                        }
+                    } else {
+                        return 5;
+                    }
+                },
+            }
+        });
+        new Vue({
+            el: "#example",
+            data: {
+
+            }
+        });
+    </script>
 </body>
+
 </html>
