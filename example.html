@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/page.css" />
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/vue.min.js"></script>
+    <script src="js/pagination.js"></script>
+    <script src="js/datalist.js"></script>
+</head>
+
+<body>
+    <div id="example">
+        <div class="col-md-8">
+            <data-list  :edit-model="editModel" :thead="thead" :list="list"></data-list>
+        </div>
+        <pagination v-bind:page-model="pageModel" v-on:query="getList"></pagination>
+    </div>
+
+    <script>
+        var tempData = [
+
+        ];
+        for (var i = 0; i < 200; i++) {
+            tempData.push({id:i, name: "name" + i, age: i });
+        }
+        var keys = Object.keys(tempData[0]);
+
+
+        new Vue({
+            el: "#example",
+            data: {
+                list: null,
+                thead: keys,
+                pageModel: {
+                    total: 200,
+                    totalPage: 12,
+                },
+                editModel:{
+                    url:"test/",
+                    editable:true,
+                },
+            },
+            created: function () {
+            },
+            methods: {
+                getList: function (page, totalPage) {
+                    var begin = (page - 1) * 10;
+                    this.list = tempData.slice(begin, begin + 10);
+                    this.pageModel.total = tempData.length;
+                    this.pageModel.totalPage = tempData.length / 10;
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>

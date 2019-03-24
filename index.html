@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/page.css" />
     <script src="js/jquery-1.10.2.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/vue.min.js"></script>
@@ -14,14 +15,31 @@
 
 <body>
     <div id="example">
-        <m-page></m-page>
+        <div class="col-md-8">
+            <data-list :thead="thead" :list="list"></data-list>
+        </div>
+        <pagination v-bind:page-model="pageModel" v-on:query="getList"></pagination>
     </div>
-    <template id="app">
-        <div class="form-group">
-            <div style="width:800px;">
-
-                <label class="control-label col-lg-4">当前第<span id="page">{{page}}</span>页共<span
-                        id="totalPage">{{totalPage}}</span>页
+    <template id="datalist">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th v-for="head in thead">
+                        {{head}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in list">
+                    <td v-for="property in item">{{property}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+    <template id="pagination">
+        <div style="width:800px;">
+            <div class="col-lg-4">
+                <label class="">共<span id="totalPage">{{totalPage}}</span>页
                     总共<b> {{total}} </b>条
                     <select v-model="limit">
                         <option>10</option>
@@ -31,36 +49,48 @@
                         <option>50</option>
                         <option>100</option>
                     </select>条/页</label>
-                <!-- <label class="control-label col-lg-2">
+            </div>
+            <!-- <label class="control-label col-lg-2">
                 </label> -->
-                <div>
-                    <ul class="pagination">
-                        <li><a href="#">&laquo;</a></li>
-                        <li><a href="#">&lt;</a></li>
-                        <li v-for="(pageNum,index) in pageList" :class="[{'active':currentActive == index+1}]">
-                           <a href="#"> {{ pageNum }}</a>
-                        </li>
-                        <li><a v-on:click="nextPage" href="#">&gt;</a></li>
-                        <li><a href="#">&raquo;</a></li>
-                    </ul>
-                </div>
-                <ul class="pager col-lg-4" style="display:inline-block;margin:0;">
-                    <li id="lip"><a href="Javascript:void(0)" id="previous">上一页</a></li>
-                    <li id="lin"><a href="Javascript:void(0)" id="next">下一页</a></li>
+            <div class="col-lg-8" style="display:inline-block;">
+                <ul class="pagination">
+                    <li v-if="page != 1"><a href="#" @click="firstPage">&laquo;</a></li>
+                    <li v-if="page != 1"><a href="#">&lt;</a></li>
+                    <li v-for="(pageNum,index) in pageList" :class="[{'active':currentActive == index+1}]">
+                        <a href="#" @click="jumpPage(pageNum)"> {{ pageNum }}</a>
+                    </li>
+                    <li v-if="page != totalPage" :class="[{'disabled':page == totalPage}]"><a v-on:click="nextPage"
+                            href="#">&gt;</a></li>
+
+                    <li v-if="page != totalPage"><a href="#" @click="lastPage">&raquo;</a></li>
+                    <li><span><input type="text"  v-model="jumpNum"
+                                style="width:40px;height:20px" /></span></li>
+                    <li><a href="#" @click="jumpPage(jumpNum)">转到</a></li>
                 </ul>
-                <div class="col-lg-2">
-                    <input type="text" class="form-control" id="pageIndex" placeholder="1">
-                </div>
-                <button class="btn btn-default col-md-1" id="jump">转到</button>
-
-
             </div>
 
         </div>
+
     </template>
     <script>
-        var template = document.querySelector("#app").innerHTML;
-        var data = Vue.component("m-page", {
+        var tempData =[
+            
+        ];
+        for(var i = 0 ;i<200;i++){
+            tempData.push({name:"name"+i,age:i});
+        }
+        var keys = Object.keys(tempData[0]);
+        var template = document.querySelector("#pagination").innerHTML;
+        var dataListTemplate = document.querySelector("#datalist").innerHTML;
+        var pagination = Vue.component("pagination", {
+            props: {
+                pageModel:{
+                    default:{
+                        total:50,
+                        totalPage:5
+                    }
+                }
+            },
             template: template,
             data: function () {
                 return {
@@ -69,22 +99,40 @@
                     totalPage: 10,
                     limit: 10,
                     currentActive: 1,
-                    // pageList:[
-                    //     1,
-                    //     2,
-                    //     3,
-                    //     4,
-                    //     5
-                    // ],
+                    jumpNum: 1,
                 }
             },
             created: function () {
-                
+                this.totalPage = this.pageModel.totalPage;
+                this.total = this.pageModel.total;
+                this.$emit("query", this.page, this.totalPage);
             },
             methods: {
+                previousPage: function () {
+                    this.page--;
+                },
                 nextPage: function () {
+                    // if(this.totalPage != this.page){
                     this.page++;
+                    // }
+                },
+                jumpPage: function (num) {
+                    if (isNaN(num)) {
+                        console.log("错误输入");
+                        return;
+                    }
+                    var page = parseInt(num);
+                    if (page <= this.totalPage) {
+                        this.page = page;
+                    }
+                },
+                firstPage: function () {
+                    this.page = 1;
+                },
+                lastPage: function () {
+                    this.page = this.totalPage;
                 }
+
             },
             watch: {
                 page(newPage, oldPage) {
@@ -105,31 +153,72 @@
                             this.currentActive = 5;
                             break;
                     }
-                }
+                    this.$emit("query", newPage, this.totalPage);
+                },
+                pageModel: {
+                    handler(newModel, oldModel) {
+                        this.totalPage = newModel.totalPage;
+                        this.total = newModel.total;
+                    },
+                    deep: true,
+                },
             },
             computed: {
-                pageList:function(){
+                pageList: function () {
                     var list = [];
                     if (this.page >= 3) {
                         if (this.totalPage - this.page >= 3) {
-                            list = [this.page - 2,this.page - 1,this.page,this.page + 1, this.page + 2];
+                            list = [this.page - 2, this.page - 1, this.page, this.page + 1, this.page + 2];
                         }
                         else {
-                            list = [this.totalPage - 4,this.totalPage - 3,this.totalPage - 2,this.totalPage - 1, this.totalPage];
+                            list = [this.totalPage - 4, this.totalPage - 3, this.totalPage - 2, this.totalPage - 1, this.totalPage];
 
                         }
                     } else {
-                        list = [ 1, 2,3, 4, 5];
+                        list = [1, 2, 3, 4, 5];
                     }
                     return list;
                 },
             }
         });
+        var datalist = Vue.component("data-list",{
+            props:["thead","list"],
+            template:dataListTemplate,
+            data:function(){
+                return {
+                    
+                }
+            },
+            computed:{
+
+            },
+            watch:{
+
+            },
+            methods:{
+
+            },
+        });
         new Vue({
             el: "#example",
             data: {
-
-            }
+                list: null,
+                thead:keys,
+                pageModel: {
+                    total: 200,
+                    totalPage: 12,
+                },
+            },
+            created: function () {
+            },
+            methods: {
+                getList: function (page, totalPage) {
+                    var begin = (page-1)*10;
+                    this.list = tempData.slice(begin,begin+10);
+                    this.pageModel.total = tempData.length;
+                    this.pageModel.totalPage = tempData.length / 10;
+                },
+            },
         });
     </script>
 </body>
